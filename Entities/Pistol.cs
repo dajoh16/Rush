@@ -7,24 +7,24 @@ namespace MyFirstGame.Entities;
 
 public class Pistol : IWeapon
 {
-    public Pistol(TimeSpan firingCooldown)
+    public Pistol(TimeSpan baseFiringCooldown)
     {
-        FiringCooldown = firingCooldown;
-        ProjectileSpeed = 50f;
+        BaseFiringCooldown = baseFiringCooldown;
+        BaseProjectileSpeed = 250f;
         ProjectileHealth = 100f;
         TimeSinceLastFire = TimeSpan.Zero;
     }
 
-    public TimeSpan FiringCooldown { get; set; }
+    public TimeSpan BaseFiringCooldown { get; set; }
     public TimeSpan TimeSinceLastFire { get; set; }
-    public float ProjectileSpeed { get; set; }
+    public float BaseProjectileSpeed { get; set; }
     public float ProjectileHealth { get; set; }
     
     public void Fire(GameState gameState, GameTime gameTime)
     {
         TimeSinceLastFire += gameTime.ElapsedGameTime;
 
-        if (TimeSinceLastFire > FiringCooldown)
+        if (TimeSinceLastFire > (BaseFiringCooldown * gameState.Player.HasteRating))
         {
             //Fire by creating a new projectile
             SpawnPistolProjectile(gameState);
@@ -35,9 +35,16 @@ public class Pistol : IWeapon
     private void SpawnPistolProjectile(GameState gameState)
     {
         var mouseState = Mouse.GetState();
-        var direction = new Vector2(mouseState.X, mouseState.Y);
+        var playerPosition = gameState.Player.Position;
+        
+        var x = mouseState.X - playerPosition.X;
+        var y = mouseState.Y - playerPosition.Y;
+        var direction = new Vector2(x, y);
+
+        var speed = BaseProjectileSpeed + ((gameState.Player.ProjectileSpeedPercentage ) * BaseProjectileSpeed);
+
         direction.Normalize();
-        var pistolProjectile = new PistolProjectile(gameState.Player.Position, direction, ProjectileSpeed, ProjectileHealth);
+        var pistolProjectile = new PistolProjectile(playerPosition, direction, speed, ProjectileHealth);
         gameState.Entities.Add(pistolProjectile);
     }
 }
@@ -61,7 +68,7 @@ public class PistolProjectile : IEntity
     
     public void LoadContent(Game game)
     {
-        Texture = game.Content.Load<Texture2D>("ball");
+        Texture = game.Content.Load<Texture2D>("pistolBullet");
     }
 
     public void Update(GameState gameState, GameTime gameTime)

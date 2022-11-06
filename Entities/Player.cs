@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -8,22 +7,36 @@ namespace MyFirstGame.Entities;
 
 public class Player : IEntity
 {
+    private static float MAX_HASTE = 1000f;
+    private float _projectileSpeedPercentage;
     public Texture2D Texture { get; set; }
     public Vector2 Position { get; set; }
     public float Speed { get; set; }
     public float Health { get; set; }
     public IWeapon EquippedWeapon { get; set; }
+    public float HasteStat { get; set; }
+    public float HasteRating => 1 - (HasteStat / MAX_HASTE);
+
+    public float ProjectileSpeedPercentage
+    {
+        get => _projectileSpeedPercentage / 100;
+        set => _projectileSpeedPercentage = value;
+    }
+
     public Player(Vector2 position, float speed, float health)
     {
         Position = position;
         Speed = speed;
         Health = health;
-        EquippedWeapon = new Pistol(TimeSpan.FromSeconds(2));
+        //EquippedWeapon = new Pistol(TimeSpan.FromSeconds(2));
+        EquippedWeapon = new Shotgun(TimeSpan.FromSeconds(2));
+        HasteStat = 0f; //0 Haste Stat
+        ProjectileSpeedPercentage = 0f; //0% increase
     }
     
     public void LoadContent(Game game)
     {
-        Texture = game.Content.Load<Texture2D>("ball");
+        Texture = game.Content.Load<Texture2D>("player");
     }
 
     public void Update(GameState gameState, GameTime gameTime)
