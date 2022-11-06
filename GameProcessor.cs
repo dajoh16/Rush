@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -54,10 +55,17 @@ public class GameProcessor : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit(); 
         
-        //Update ALL Entities
-        _gameState.Entities.ForEach(e => e.Update(_gameState, gameTime));
-        
-        
+        //Update all Current Entities. Additional Spawned entities will begin processing on next Update
+        var gameStateEntities = _gameState.Entities.ToList();
+        gameStateEntities.ForEach(e =>
+        {
+            if (e.Texture == null)
+            {
+                e.LoadContent(this);
+            }
+            e.Update(_gameState, gameTime);
+        });
+
         base.Update(gameTime);
     }
 
@@ -65,10 +73,13 @@ public class GameProcessor : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        
-
         _spriteBatch.Begin();
-        _gameState.Entities.ForEach(e => e.Draw(_gameState, gameTime, _spriteBatch));
+        _gameState.Entities.ForEach(e =>
+        {
+            if(e.Texture != null){
+                e.Draw(_gameState, gameTime, _spriteBatch);
+            }
+        });
         _spriteBatch.End();
 
         base.Draw(gameTime);

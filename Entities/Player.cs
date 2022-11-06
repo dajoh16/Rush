@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -17,6 +18,7 @@ public class Player : IEntity
         Position = position;
         Speed = speed;
         Health = health;
+        EquippedWeapon = new Pistol(TimeSpan.FromSeconds(2));
     }
     
     public void LoadContent(Game game)
@@ -29,9 +31,7 @@ public class Player : IEntity
         var keyState = Keyboard.GetState();
         UpdatePlayerPosition(gameState, gameTime, keyState);
         
-        
-        
-        EquippedWeapon.Fire(gameState);
+        EquippedWeapon.Fire(gameState, gameTime);
     }
 
     public void Draw(GameState gameState, GameTime gameTime, SpriteBatch spriteBatch)
